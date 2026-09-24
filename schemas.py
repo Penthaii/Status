@@ -1,0 +1,26 @@
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class NoteCreate(BaseModel):
+    title: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+
+
+class NoteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    content: str
+
+class UserBase(BaseModel):
+    username: str
+    password: str
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    username: str
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str ="bearer"
+    

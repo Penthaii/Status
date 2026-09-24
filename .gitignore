@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# SQLite veritabanı (yerel veri)
+*.db
+
+# Node
+node_modules/
+
+# Editör
+.vscode/*
+!.vscode/settings.json
