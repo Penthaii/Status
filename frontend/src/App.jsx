@@ -1,12 +1,15 @@
-import NoteList from "./components/NoteList";
+import { Routes, Route } from 'react-router-dom';
+import Login from './components/Login';
+import Protected from './components/Protected';
 
 function App() {
   return (
-    <div>
-      <h1>Notlar</h1>
-      <NoteList />
-    </div>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/protected" element={<Protected />} />
+    </Routes>
   );
 }
-
 export default App;
+
+

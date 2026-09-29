@@ -13,7 +13,7 @@ class NoteResponse(BaseModel):
     title: str
     content: str
 
-class UserBase(BaseModel):
+class UserCreate(BaseModel):
     username: str
     password: str
 class UserResponse(BaseModel):
