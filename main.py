@@ -89,6 +89,7 @@ def create_access_token(data:dict,expires_delta:timedelta|None=None):
     encoded_jwt= jwt.encode(to_encode, SECRET_KEY,algorithm=ALGORITHM)
     return encoded_jwt
 
+
 @app.post("/token")
 def login_for_access_token(form_data:OAuth2PasswordRequestForm=Depends(),db:Session=Depends(get_db)):
     user=authenticate_user(form_data.username,form_data.password, db)
@@ -123,13 +124,13 @@ async def verify_user_token(token:str):
         return{"message":"token geçerli"}
 
 @app.get('/notes', response_model=list[NoteResponse])
-def get_notes(db: Session = Depends(get_db)):
+def get_notes(db: Session = Depends(get_db),payload: dict =Depends(verify_token)):
     return db.query(models.Note).all()
 
 
 
 @app.post('/notes', response_model=NoteResponse)
-def create_note(note: NoteCreate, db: Session = Depends(get_db)):
+def create_note(note: NoteCreate, db: Session = Depends(get_db),payload: dict =Depends(verify_token)):
     new_note = models.Note(title=note.title, content=note.content)
     db.add(new_note)
     db.commit()
@@ -138,7 +139,7 @@ def create_note(note: NoteCreate, db: Session = Depends(get_db)):
 
 
 @app.put('/notes/{note_id}', response_model=NoteResponse)
-def update_note(note_id: int, note: NoteCreate, db: Session = Depends(get_db)):
+def update_note(note_id: int, note: NoteCreate, db: Session = Depends(get_db),payload: dict =Depends(verify_token)):
     db_note = db.query(models.Note).filter(models.Note.id == note_id).first()
     if db_note is None:
         raise HTTPException(status_code=404, detail="Not bulunamadı")
@@ -151,7 +152,7 @@ def update_note(note_id: int, note: NoteCreate, db: Session = Depends(get_db)):
 
 
 @app.delete('/notes/{note_id}')
-def delete_note(note_id: int, db: Session = Depends(get_db)):
+def delete_note(note_id: int, db: Session = Depends(get_db),payload: dict =Depends(verify_token)):
     db_note = db.query(models.Note).filter(models.Note.id == note_id).first()
     if db_note is None:
         raise HTTPException(status_code=404, detail="Not database'de yok")

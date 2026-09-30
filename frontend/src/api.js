@@ -9,16 +9,21 @@ const STATUS_MESSAGES = {
     401: "Oturum açmanız gerekiyor.",
     403: "Bu işlem için yetkiniz yok.",
     404: "İstenen kayıt bulunamadı.",
-    422: "Geçersiz veri girişi.",
-
 };
+
+api.interceptors.request.use(function (config) {
+    const token = localStorage.getItem("token");
+    if (token) {
+        config.headers["Authorization"] = "Bearer " + token;
+    }
+    return config;
+});
+
 
 
 
 api.interceptors.response.use(
-    function (response) {
-        return response;
-    },
+    null,
     function (error) {
         let message = "Beklenmeyen bir hata oluştu.";
 
