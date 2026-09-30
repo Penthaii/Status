@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 
 
@@ -35,29 +36,13 @@ function Login() {
         formDetails.append("password", password);
 
         try {
-            const response = await fetch('http://localhost:8000/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formDetails
-            });
-
+            const res = await api.post('/token', formDetails);
+            localStorage.setItem('token', res.data.access_token);
+            navigate('/protected');
+        } catch (err) {
+            setError(err.message);
+        } finally {
             setIsLoading(false);
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.access_token);
-                navigate('/protected');
-            }
-            else {
-                const errorData = await response.json();
-                setError(errorData.detail)
-            }
-        }
-        catch (error) {
-            setIsLoading(false);
-            setError("hata")
         }
     };
 

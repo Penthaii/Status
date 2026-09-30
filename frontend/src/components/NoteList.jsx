@@ -36,7 +36,6 @@ function NoteList() {
             setError(err.message);
         }
     }
-
     useEffect(function () {
         async function fetchNotes() {
             try {

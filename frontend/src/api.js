@@ -4,13 +4,8 @@ const api = axios.create({
     baseURL: "http://127.0.0.1:8000",
 });
 
-// Duruma özel, kullanıcıya gösterilecek varsayılan mesajlar
-const STATUS_MESSAGES = {
-    401: "Oturum açmanız gerekiyor.",
-    403: "Bu işlem için yetkiniz yok.",
-    404: "İstenen kayıt bulunamadı.",
-};
-
+// REQUEST interceptor: istek backend'e gitmeden önce çalışır.
+// Görevi: localStorage'daki token'ı Authorization başlığına eklemek.
 api.interceptors.request.use(function (config) {
     const token = localStorage.getItem("token");
     if (token) {
@@ -19,25 +14,19 @@ api.interceptors.request.use(function (config) {
     return config;
 });
 
-
-
-
+// RESPONSE interceptor: backend'den hata cevabı gelince, bileşene ulaşmadan önce çalışır.
+// Görevi: backend'in gönderdiği hata mesajını (detail) bileşenlerin okuyabileceği err.message'a koymak.
+// Mesajı backend belirler, burada sabit mesaj tutulmaz.
 api.interceptors.response.use(
     null,
     function (error) {
         let message = "Beklenmeyen bir hata oluştu.";
 
         if (error.response) {
-            const status = error.response.status;
             const detail = error.response.data?.detail;
 
-            if (status === 401 || status === 403) {
-
-                message = STATUS_MESSAGES[status];
-            } else if (status === 404) {
-
-                message = typeof detail === "string" ? detail : STATUS_MESSAGES[404];
-            } else if (Array.isArray(detail)) {
+            if (Array.isArray(detail)) {
+                // 422: FastAPI doğrulama hataları liste olarak gelir
                 message = detail
                     .map(function (d) {
                         const field = Array.isArray(d.loc) ? d.loc[d.loc.length - 1] : "alan";
@@ -45,11 +34,13 @@ api.interceptors.response.use(
                     })
                     .join(" | ");
             } else if (typeof detail === "string") {
+                // HTTPException(detail="...") ile gelen mesaj
                 message = detail;
             } else {
-                message = `Sunucu hatası: ${status}`;
+                message = `Sunucu hatası: ${error.response.status}`;
             }
         } else if (error.request) {
+            // Cevap hiç gelmedi: mesajı backend veremez, frontend yazar
             message = "Sunucuya ulaşılamıyor. Backend'in çalıştığından emin olun.";
         }
 

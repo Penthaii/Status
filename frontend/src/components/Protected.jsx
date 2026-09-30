@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NoteList from './NoteList';
+import api from '../api';
 function Protected() {
     const navigate = useNavigate();
 
@@ -13,10 +14,7 @@ function Protected() {
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/verify-token/${token}`);
-                if (!response.ok) {
-                    throw new Error('Token doğrulanamadı');
-                }
+                await api.get(`/verify-token/${token}`);
             } catch (error) {
                 localStorage.removeItem('token');
                 navigate('/');

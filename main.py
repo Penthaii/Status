@@ -19,10 +19,8 @@ Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-
-
-
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -38,9 +36,8 @@ def get_db():
     finally:
         db.close()
 
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 SECRET_KEY="your_secret_key"
 ALGORITHM="HS256"
@@ -51,7 +48,7 @@ ACCESS_TOKEN_EXPIRE=30
 def get_user_by_username(db:Session, username:str):
     return db.query(User).filter(User.username==username).first()
 
-def create_user(db:Session,user:str):
+def create_user(db:Session,user:UserCreate):
     hashed_password = pwd_context.hash(user.password)
     db_user= User(username=user.username,password_hash=hashed_password)
     db.add(db_user)
@@ -79,7 +76,7 @@ def authenticate_user(username:str,password:str,db :Session):
 
 #access token üretmek
 def create_access_token(data:dict,expires_delta:timedelta|None=None):
-    
+
     to_encode=data.copy()
     if expires_delta:
         expire=datetime.now(timezone.utc)+expires_delta
