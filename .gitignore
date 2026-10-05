@@ -12,3 +12,5 @@ node_modules/
 # Editör
 .vscode/*
 !.vscode/settings.json
+# Şifreler burda
+.env

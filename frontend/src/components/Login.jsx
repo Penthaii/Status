@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-
-
+import './Login.css';
 
 function Login() {
     const [username, setUsername] = useState("")
@@ -21,6 +20,7 @@ function Login() {
             setError("Tüm alanlar zorunludur");
             return false;
         }
+
         setError("");
         return true;
     };
@@ -47,24 +47,27 @@ function Login() {
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
+        <div className="login-page">
+            <form className="login-card" onSubmit={handleSubmit}>
+                <h2>Giriş yap</h2>
                 <input
+                    className="login-input"
                     type="text"
                     placeholder="Kullanıcı adı"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
                 <input
+                    className="login-input"
                     type="password"
                     placeholder="Şifre"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button type="submit" disabled={isLoading} style={{ color: "black" }}>
+                <button className="login-button" type="submit" disabled={isLoading}>
                     {isLoading ? "Giriş yapılıyor..." : "Giriş yap"}
                 </button>
-                {error && <p>{error}</p>}
+                {error && <p className="login-error">{error}</p>}
             </form>
         </div>
     );

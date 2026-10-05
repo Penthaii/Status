@@ -12,6 +12,8 @@ function NoteCard({ id, title, content, onDelete, onUpdate }) {
         setIsEditing(false);
     }
 
+
+
     function handleDeleteClick() {
         if (window.confirm("Bu notu silecek misin ?")) {
             onDelete(id);

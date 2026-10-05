@@ -11,6 +11,7 @@ function NoteForm({ onAddNote }) {
         onAddNote(newNote);
         setTitle("");
         setContent("");
+
     }
 
     return (

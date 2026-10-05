@@ -26,7 +26,8 @@ app.add_middleware(
     allow_origins=["http://localhost:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
+    allow_credentials=True, #Cookie kullanmıyoz aslında gereksiz bu
+
 )
 
 def get_db():
@@ -42,7 +43,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY="your_secret_key"
 ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE=30
-
 
 
 def get_user_by_username(db:Session, username:str):
@@ -75,7 +75,7 @@ def authenticate_user(username:str,password:str,db :Session):
     return user
 
 #access token üretmek
-def create_access_token(data:dict,expires_delta:timedelta|None=None):
+def create_access_token(data:dict,expires_delta:timedelta):
 
     to_encode=data.copy()
     if expires_delta:
@@ -90,6 +90,8 @@ def create_access_token(data:dict,expires_delta:timedelta|None=None):
 @app.post("/token")
 def login_for_access_token(form_data:OAuth2PasswordRequestForm=Depends(),db:Session=Depends(get_db)):
     user=authenticate_user(form_data.username,form_data.password, db)
+
+    
     if not user:
         raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -108,11 +110,11 @@ def verify_token(token:str =Depends(oauth2_scheme)):
         username:str=payload.get("sub")
         if username is None:
             raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token doğrulanırken hata oluştu")
         return payload
     except PyJWTError:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Token hala geçersiz")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Token hala geçersiz")
 
 
 @app.get("/verify-token/{token}")
@@ -156,7 +158,7 @@ def delete_note(note_id: int, db: Session = Depends(get_db),payload: dict =Depen
 
     db.delete(db_note)
     db.commit()
-
+    
 
     return {"message" : "Atılan notu sildirdik"}
 
