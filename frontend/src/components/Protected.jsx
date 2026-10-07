@@ -1,22 +1,16 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NoteList from './NoteList';
+import LogoutButton from './LogoutButton';
 import api from '../api';
 function Protected() {
     const navigate = useNavigate();
 
     useEffect(() => {
         const verifyToken = async () => {
-            const token = localStorage.getItem('token')
-            if (!token) {
-                navigate('/')
-                return;
-            }
-
             try {
-                await api.get(`/verify-token/${token}`);
-            } catch (error) {
-                localStorage.removeItem('token');
+                await api.get('/verify-token');
+            } catch {
                 navigate('/');
             }
         }
@@ -25,6 +19,7 @@ function Protected() {
     }, [navigate]);
 
     return <div>
+        <LogoutButton />
         <NoteList />
     </div>;
 }

@@ -1,9 +1,11 @@
 
+from fastapi import responses
+from sqlalchemy import values
 from jwt import PyJWTError
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import NoteCreate, NoteResponse, UserCreate
 from models import User
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
@@ -17,6 +19,7 @@ from fastapi import status
 Base.metadata.create_all(bind=engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 
 app = FastAPI()
@@ -43,6 +46,36 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY="your_secret_key"
 ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE=30
+
+
+
+
+@app.post("/token")
+def login_for_access_token(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm= Depends(),
+    db: Session = Depends(get_db)
+):
+    user=authenticate_user(form_data.username,form_data.password, db)
+    if not user:
+        raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Yanlış kullanıcı adı veya şifre",
+        headers={"WWW-Authenticate": "Bearer"})
+    access_token_expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE)
+    access_token=create_access_token(
+        data={"sub":user.username},
+        expires_delta=access_token_expire
+    )
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False, 
+        max_age=ACCESS_TOKEN_EXPIRE * 60,
+    )
+    return {"message":"Giriş Başarılı"}
 
 
 def get_user_by_username(db:Session, username:str):
@@ -87,24 +120,12 @@ def create_access_token(data:dict,expires_delta:timedelta):
     return encoded_jwt
 
 
-@app.post("/token")
-def login_for_access_token(form_data:OAuth2PasswordRequestForm=Depends(),db:Session=Depends(get_db)):
-    user=authenticate_user(form_data.username,form_data.password, db)
-
-    
-    if not user:
+def verify_token(request: Request):
+    token = request.cookies.get("access_token")
+    if token is None:
         raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Yanlış kullanıcı adı veya şifre",
-        headers={"WWW-Authenticate": "Bearer"})
-    access_token_expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE)
-    access_token=create_access_token(
-        data={"sub":user.username},
-        expires_delta=access_token_expire
-    )
-    return {"access_token": access_token,"token_type":"bearer"}
-
-def verify_token(token:str =Depends(oauth2_scheme)):
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Giriş yapılmamış")
     try:
         payload= jwt.decode(token,SECRET_KEY, algorithms=[ALGORITHM])
         username:str=payload.get("sub")
@@ -117,10 +138,15 @@ def verify_token(token:str =Depends(oauth2_scheme)):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Token hala geçersiz")
 
 
-@app.get("/verify-token/{token}")
-async def verify_user_token(token:str):
-        verify_token(token=token)
-        return{"message":"token geçerli"}
+@app.get("/verify-token")
+def verify_user_token(payload: dict = Depends(verify_token)):
+    return {"message": "token geçerli"}
+
+
+@app.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token", httponly=True, samesite="lax")
+    return {"message": "çıkış yapıldı"}
 
 @app.get('/notes', response_model=list[NoteResponse])
 def get_notes(db: Session = Depends(get_db),payload: dict =Depends(verify_token)):
