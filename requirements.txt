@@ -1,0 +1,11 @@
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+SQLAlchemy==2.0.54
+psycopg2-binary==2.9.13
+python-dotenv==1.2.3
+PyJWT==2.15.1
+passlib==1.7.4
+# passlib breaks with bcrypt>=4.1, keep this pin
+bcrypt==4.0.1
+# required by OAuth2PasswordRequestForm (form data parsing)
+python-multipart==0.0.32

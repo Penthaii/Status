@@ -9,11 +9,12 @@
 - **Frontend:** React + Vite (`frontend/` klasörü), lint için oxlint.
 
 ## Komutlar
-- Sanal ortam (Windows): `venv\Scripts\activate`
+- Sanal ortam (Windows): `.venv\Scripts\activate` (tek ortam `.venv`; eski `venv/` kullanılmıyor)
+- Paket kurulumu: `pip install -r requirements.txt`
 - Backend çalıştırma: `uvicorn main:app --reload`
 - Frontend: `cd frontend` → `npm install` → `npm run dev` (diğer script'ler için `frontend/package.json`'a bak)
 - Test: `pytest` (`tests/` klasörü henüz yok; ilk test yazılırken oluştur)
-- `requirements.txt` henüz yok. Paket eklenmesi gerektiğinde önce bunu oluşturmayı öner.
+- Yeni paket eklenince `requirements.txt`'yi güncelle (sürüm sabitlenmiş, sadece doğrudan bağımlılıklar).
 
 ## Mevcut Yapı
 ```
@@ -23,7 +24,8 @@ BackendProject/
 ├── models.py      # SQLAlchemy modelleri
 ├── schemas.py     # Pydantic şemaları
 ├── my_db.db       # Eski SQLite veritabanı (yedek)
-├── venv/
+├── requirements.txt
+├── .venv/
 └── frontend/      # React + Vite (src/api.js, src/components/ ...)
 ```
 
