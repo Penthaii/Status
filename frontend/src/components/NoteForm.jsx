@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./Notes.css";
 
 function NoteForm({ onAddNote }) {
     const [title, setTitle] = useState("");
@@ -15,8 +14,9 @@ function NoteForm({ onAddNote }) {
     }
 
     return (
-        <form className="note-form" onSubmit={handleSubmit}>
+        <form className="flex justify-center gap-2 my-6" onSubmit={handleSubmit}>
             <input
+                className="px-2.5 py-2 border border-border rounded-md"
                 value={title}
                 onChange={function (e) {
                     setTitle(e.target.value);
@@ -24,13 +24,14 @@ function NoteForm({ onAddNote }) {
                 placeholder="Başlık"
             />
             <input
+                className="px-2.5 py-2 border border-border rounded-md"
                 value={content}
                 onChange={function (e) {
                     setContent(e.target.value);
                 }}
                 placeholder="İçerik"
             />
-            <button type="submit">Ekle</button>
+            <button className="px-3.5 py-2 rounded-md bg-accent text-white cursor-pointer" type="submit">Ekle</button>
         </form>
     );
 }

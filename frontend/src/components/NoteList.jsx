@@ -52,9 +52,9 @@ function NoteList() {
 
     return (
         <div>
-            {error && <div className="error-banner">{error}</div>}
+            {error && <div className="mx-6 my-3 px-3.5 py-2.5 border border-danger rounded-md bg-danger/10 text-danger text-center">{error}</div>}
             <NoteForm onAddNote={handleAddNote} />
-            <div className="notes-grid">
+            <div className="grid grid-cols-5 gap-4 px-6">
                 {notes.map(function (note) {
                     return (
                         <NoteCard
